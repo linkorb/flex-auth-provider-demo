@@ -10,7 +10,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 $app->get('/', function (Request $request) use ($app) {
     if ($request->query->get('type')) {
-        $request->getSession()->set('flex_auth_type', $request->query->get('type'));
+        file_put_contents($app['flex_type_file'], $request->query->get('type'));
+        return new RedirectResponse('/');
     }
 
     /** @var \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface $tokenStorage */

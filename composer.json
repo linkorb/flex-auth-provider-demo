@@ -19,7 +19,7 @@
     "symfony/security": "^4.0",
     "symfony/twig-bridge": "~2.8|^3.0",
     "symfony/validator": "~2.8|^3.0",
-    "linkorb/flex-auth": "master@dev",
+    "linkorb/flex-auth-provider": "dev-master",
     "firebase/php-jwt": "^5.0"
   },
   "autoload": {
@@ -41,7 +41,8 @@
   "repositories": [
     {
       "type": "path",
-      "url": "/var/www/flex-auth"
+      "url": "/var/www/flex-auth-provider"
     }
-  ]
+  ],
+  "minimum-stability": "dev"
 }

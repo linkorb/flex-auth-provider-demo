@@ -21,19 +21,24 @@ $app['twig'] = $app->extend('twig', function ($twig, $app) {
 $app['debug'] = true;
 
 
-$app->register(new Silex\Provider\SessionServiceProvider());
-$app->register(new FlexAuthProvider());
+$app->register(new \Silex\Provider\SessionServiceProvider());
+$app->register(new \FlexAuthProvider\FlexAuthProvider());
 
 $app['security.user_provider.main'] = function ($app) {
     return $app['flex_auth.security.user_provider'];
 };
+
+
+$cacheFolderPath = realpath('./../var/cache');
+
+$app['flex_type_file'] = $cacheFolderPath . '/flex_type';
 
 $app['flex_auth.type_provider'] = function ($app) {
     return new \FlexAuth\AuthFlexTypeCallbackProvider(function() use($app) {
         /** @var \Symfony\Component\HttpFoundation\RequestStack $requestStack */
         $requestStack = $app['request_stack'];
         $request = $requestStack->getMasterRequest();
-        $type = $request->getSession()->get('flex_auth_type');
+        $type = is_file($app['flex_type_file']) && is_readable($app['flex_type_file']) ? file_get_contents($app['flex_type_file']) : null;
 
         if ($type === 'jwt') {
             $certFolderPath = './../config/cert';
