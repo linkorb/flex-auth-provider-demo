@@ -21,22 +21,28 @@ $app['twig'] = $app->extend('twig', function ($twig, $app) {
 $app['debug'] = true;
 
 
-$users = [
-    'admin' => ['ROLE_USER', '123']
-];
-
 $app->register(new Silex\Provider\SessionServiceProvider());
-
-
 $app->register(new FlexAuthProvider());
 
 $app['security.user_provider.main'] = function ($app) {
     return $app['flex_auth.security.user_provider'];
 };
 
-$app['flex_auth.type_provider'] = function () {
-    return new \FlexAuth\AuthFlexTypeCallbackProvider(function() {
-        return \FlexAuth\AuthFlexTypeProviderFactory::resolveParamsFromLine('memory?users=alice:4l1c3:ROLE_ADMIN;ROLE_EXAMPLE,bob:b0b:ROLE_EXAMPLE)');
+$app['flex_auth.type_provider'] = function ($app) {
+    return new \FlexAuth\AuthFlexTypeCallbackProvider(function() use($app) {
+        /** @var \Symfony\Component\HttpFoundation\RequestStack $requestStack */
+        $requestStack = $app['request_stack'];
+        $request = $requestStack->getMasterRequest();
+        $type = $request->getSession()->get('flex_auth_type');
+
+        if ($type === 'jwt') {
+            $certFolderPath = './../config/cert';
+            $type = 'jwt?private_key=@'. $certFolderPath .'/jwtRS256.key&public_key=@'. $certFolderPath .'/jwtRS256.key.pub&algo=RS256';
+        } else {
+            $type = 'memory?users=alice:4l1c3:ROLE_ADMIN;ROLE_EXAMPLE,bob:b0b:ROLE_EXAMPLE)';
+        }
+
+        return \FlexAuth\AuthFlexTypeProviderFactory::resolveParamsFromLine($type);
     });
 };
 
@@ -61,7 +67,6 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), [
                 'invalidate_session' => true
             ],
             'anonymous' => true,
-            //'users' => $users,
         ],
     ],
 ]);

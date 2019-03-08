@@ -78,10 +78,13 @@ class FlexAuthProvider implements ServiceProviderInterface, EventListenerProvide
             return new DefaultJWTUserFactory();
         };
 
-        $pimple['flex_auth.type.jwt.security.authenticator'] = function ($app) {;
+        $pimple['flex_auth.type.jwt.jwt_encoder'] = function ($app) {
+            return new FlexTypeJWTEncoder($app['flex_auth.type_provider']);
+        };
+        $pimple['flex_auth.type.jwt.security.authenticator'] = function ($app) {
             return new JWTTokenAuthenticator(
                 $app['flex_auth.type.jwt.user_factory'],
-                new FlexTypeJWTEncoder($app['flex_auth.type_provider']),
+                $app['flex_auth.type.jwt.jwt_encoder'],
                 $app['flex_auth.type_provider']
             );
         };

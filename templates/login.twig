@@ -1,10 +1,45 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
+
+{% if not isJWT %}
+
 <form action="{{ path('login_check') }}" method="post">
     {{ error }}
     <input type="text" name="_username" value="{{ last_username }}" />
     <input type="password" name="_password" value="" />
     <input type="submit" value="Login" />
 </form>
+
+{% else %}
+
+<div id="api">
+    <input name="name">
+    <button type="button">Send ajax to /api/login</button>
+</div>
+
+<script>
+    const api = document.querySelector('#api');
+    api.querySelector('button').addEventListener('click', () => {
+        const username = api.querySelector('input').value
+        if (!username) {
+            return
+        }
+        fetch('api/login', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({username: username})
+        }).then((response) => {
+            response.json().then((json) => {
+                var token = json.token
+                location.href = '/?jwt=' + token
+            })
+        })
+    })
+</script>
+
+{% endif %}
 {% endblock %}
