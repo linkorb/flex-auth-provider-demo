@@ -1,5 +1,10 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
-    Welcome to your new Silex Application!
+    Welcome {% if user %} {{ user.username }} {% else %} guest{% endif %}!
+    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+        <a href="/logout">Logout</a>
+    {% else %}
+        <a href="/login">Login</a>
+    {% endif %}
 {% endblock %}

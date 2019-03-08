@@ -17,4 +17,36 @@ $app['twig'] = $app->extend('twig', function ($twig, $app) {
     return $twig;
 });
 
+
+$app['debug'] = true;
+
+
+$users = [
+    'admin' => ['ROLE_USER', '123']
+];
+
+$app->register(new Silex\Provider\SessionServiceProvider());
+$app->register(new Silex\Provider\SecurityServiceProvider(), [
+    'security.firewalls' => [
+        'main' => [
+            'form' => [
+                'login_path' => '/login',
+                'default_target_path' => '/',
+                'check_path' => '/login_check'
+            ],
+            'logout' => [
+                'logout_path' => '/logout',
+                'target_url' => 'homepage',
+                'invalidate_session' => true
+            ],
+            'anonymous' => true,
+            'users' => $users,
+        ],
+    ],
+]);
+
+$app['security.default_encoder'] = function ($app) {
+    return new \Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder();
+};
+
 return $app;
