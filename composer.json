@@ -19,7 +19,7 @@
     "symfony/security": "^4.0",
     "symfony/twig-bridge": "~2.8|^3.0",
     "symfony/validator": "~2.8|^3.0",
-    "linkorb/flex-auth-provider": "dev-master",
+    "linkorb/flex-auth-provider": "^1.0.0",
     "firebase/php-jwt": "^5.0"
   },
   "autoload": {
@@ -37,12 +37,5 @@
       "echo 'Started web server on http://localhost:8888'",
       "php -S localhost:8888 -t web"
     ]
-  },
-  "repositories": [
-    {
-      "type": "path",
-      "url": "/var/www/flex-auth-provider"
-    }
-  ],
-  "minimum-stability": "dev"
+  }
 }
