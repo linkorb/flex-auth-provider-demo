@@ -1,0 +1,17 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <div>Flex auth type: {{ type }}.</div>
+    <div>Change to
+        {% if type == 'jwt' %}<a href="/?type=in_memory">in memory</a>{% else %} <a href="?type=jwt">jwt</a>{% endif %}
+    </div>
+
+    <div>
+        Welcome {% if user %} {{ user.username }} {% else %} guest{% endif %}!
+        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+        {% endif %}
+    </div>
+{% endblock %}
