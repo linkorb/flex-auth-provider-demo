@@ -1,45 +1,49 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
+    {% if isJWT %}
+        <div id="api">
+            <label>Simple fake authentication without password</label>
+            <div>
+                <input name="name" placeholder="Any username">
+                <input name="password" placeholder="Password" disabled>
+            </div>
+            <div>Look controller <code>$app->post('/api/login')</code></div>
+            <button type="button">Send ajax to /api/login</button>
+        </div>
 
-{% if not isJWT %}
-
-<form action="{{ path('login_check') }}" method="post">
-    {{ error }}
-    <input type="text" name="_username" value="{{ last_username }}" />
-    <input type="password" name="_password" value="" />
-    <input type="submit" value="Login" />
-</form>
-
-{% else %}
-
-<div id="api">
-    <input name="name">
-    <button type="button">Send ajax to /api/login</button>
-</div>
-
-<script>
-    const api = document.querySelector('#api');
-    api.querySelector('button').addEventListener('click', () => {
-        const username = api.querySelector('input').value
-        if (!username) {
-            return
-        }
-        fetch('api/login', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({username: username})
-        }).then((response) => {
-            response.json().then((json) => {
-                var token = json.token
-                location.href = '/?jwt=' + token
+        <script>
+            const api = document.querySelector('#api');
+            api.querySelector('button').addEventListener('click', () => {
+                const username = api.querySelector('input').value
+                if (!username) {
+                    return
+                }
+                fetch('{{ path('api_login') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({username: username})
+                }).then((response) => {
+                    response.json().then((json) => {
+                        var token = json.token
+                        location.href = '{{ path('homepage') }}' + '?jwt=' + token
+                    })
+                })
             })
-        })
-    })
-</script>
+        </script>
+    {% else %}
+        <div>
+            Memory users: {{ memory_users }}
+        </div>
 
-{% endif %}
+        <form action="{{ path('login_check') }}" method="post">
+            {{ error }}
+            <input type="text" name="_username" value="{{ last_username }}"/>
+            <input type="password" name="_password" value=""/>
+            <input type="submit" value="Login"/>
+        </form>
+    {% endif %}
 {% endblock %}
