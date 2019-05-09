@@ -3,15 +3,17 @@
 {% block content %}
     <div>Flex auth type: {{ type }}.</div>
     <div>Change to
-        {% if type == 'jwt' %}<a href="/?type=in_memory">in memory</a>{% else %} <a href="?type=jwt">jwt</a>{% endif %}
+        {% if type == 'jwt' %}<a href="{{ path('homepage') }}?type=in_memory">in memory</a>{% else %} <a href="{{ path('homepage') }}?type=jwt">jwt</a>{% endif %}
     </div>
 
     <div>
-        Welcome {% if user %} {{ user.username }} {% else %} guest{% endif %}!
+        Welcome {% if user %}{{ user.username }}{% else %}guest{% endif %}!
         {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-            <a href="/logout">Logout</a>
+            <a href="{{ path('logout') }}">Logout</a>
         {% else %}
-            <a href="/login">Login</a>
+            <a href="{{ path('login') }}">Login</a>
         {% endif %}
     </div>
+
+    <a href="{{ path('cabinet') }}">Personal cabinet</a>
 {% endblock %}

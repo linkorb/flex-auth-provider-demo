@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 $app->get('/', function (Request $request) use ($app) {
     if ($request->query->get('type')) {
         file_put_contents($app['flex_type_file'], $request->query->get('type'));
-        return new RedirectResponse('/');
+        return new RedirectResponse($app['url_generator']->generate('homepage'));
     }
 
     /** @var \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface $tokenStorage */
@@ -22,7 +22,7 @@ $app->get('/', function (Request $request) use ($app) {
         $user = is_object($token->getUser()) ? $token->getUser() : null;
     }
 
-    /** @var \FlexAuth\AuthFlexTypeProviderInterface $typeProvider */
+    /** @var \FlexAuth\FlexAuthTypeProviderInterface $typeProvider */
     $typeProvider = $app['flex_auth.type_provider'];
 
     return $app['twig']->render('index.html.twig', [
@@ -33,13 +33,14 @@ $app->get('/', function (Request $request) use ($app) {
 
 
 $app->get('/login', function(Request $request) use ($app) {
-    /** @var \FlexAuth\AuthFlexTypeProviderInterface $typeProvider */
+    /** @var \FlexAuth\FlexAuthTypeProviderInterface $typeProvider */
     $typeProvider = $app['flex_auth.type_provider'];
 
     return $app['twig']->render('login.twig', [
         'error' => $app['security.last_error']($request),
         'last_username' => $app['session']->get('_security.last_username'),
-        'isJWT' => $typeProvider->provide()['type'] === \FlexAuth\Type\JWT\JWTUserProviderFactory::TYPE
+        'isJWT' => $typeProvider->provide()['type'] === \FlexAuth\Type\JWT\JWTUserProviderFactory::TYPE,
+        'memory_users' => $app['parameters.memory_users']
     ]);
 })->bind('login');
 
@@ -48,16 +49,26 @@ $app->post('/api/login', function(Request $request) use ($app) {
     $content = json_decode($content);
     /** @var \FlexAuth\Type\JWT\JWTTokenAuthenticator $JWTTokenAuthenticator */
     $JWTTokenAuthenticator = $app['flex_auth.type.jwt.security.authenticator'];
+
+    // fake authentication without password
     $user = new \Symfony\Component\Security\Core\User\User($content->username, null, ['ROLE_USER']);
+
+    // Authentication and check password should be in hear
+
+    // generate jwt token always for any useranme
     $token = $JWTTokenAuthenticator->createTokenFromUser($user);
 
     return new JsonResponse(['token' => $token]);
 })->bind('api_login');
 
 
+$app->get('/cabinet', function() {
+    return new Response('Personal cabinet page');
+})->bind('cabinet');
+
 $app->error(function (\Exception $e, Request $request, $code) use ($app) {
-    if ($app['debug']) {
-        return;
+    if (!$app['debug']) {
+        return new Response('Sorry service is not available.');
     }
 
     // 404.html, or 40x.html, or 4xx.html, or error.html
